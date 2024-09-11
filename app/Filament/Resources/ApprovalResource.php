@@ -30,7 +30,7 @@ class ApprovalResource extends Resource
                 ->schema([
                     Select::make('application_id')
                         ->label('Application')
-                        ->options(fn () => Application::whereDoesntHave('approvals')->pluck('consumer_name', 'id'))
+                        ->options(fn () => Application::whereDoesntHave('approval')->pluck('consumer_name', 'id'))
                         ->required()
                         ->searchable(),
                 ]),
