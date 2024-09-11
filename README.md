@@ -1,3 +1,10 @@
+## User Login
+
+To access the application, use the following credentials:
+
+- Email: admin@example.com
+- Password: password
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
@@ -10,13 +17,6 @@
 ## About This Project
 
 This project is built using the Laravel framework, a web application framework with expressive, elegant syntax. It includes a user authentication system.
-
-## User Login
-
-To access the application, use the following credentials:
-
-- Email: admin@example.com
-- Password: password
 
 ## About Laravel
 
