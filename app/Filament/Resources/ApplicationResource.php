@@ -10,6 +10,7 @@ use Filament\Resources\Resource;
 use Filament\Support\RawJs;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 
 class ApplicationResource extends Resource
 {
@@ -216,6 +217,23 @@ class ApplicationResource extends Resource
                     ->label('NIK')
                     ->searchable()
                     ->toggleable(),
+                Tables\Columns\TextColumn::make('approval.status')
+                    ->label('Status')
+                    ->badge()
+                    ->default('pending')
+                    ->formatStateUsing(fn (string $state): string => Str::upper($state))
+                    ->icon(fn ($record) => match ($record->approval ? $record->approval->status : 'pending') {
+                        'pending' => 'heroicon-o-clock',
+                        'approved' => 'heroicon-o-check-circle',
+                        'rejected' => 'heroicon-o-x-circle',
+                        default => 'heroicon-o-information-circle',
+                    })
+                    ->color(fn ($record) => match ($record->approval ? $record->approval->status : 'pending') {
+                        'pending' => 'gray',
+                        'approved' => 'success',
+                        'rejected' => 'danger',
+                        default => 'gray',
+                    }),
                 Tables\Columns\TextColumn::make('vehicle_brand')
                     ->label('Brand')
                     ->searchable()
@@ -306,9 +324,11 @@ class ApplicationResource extends Resource
                     ]),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

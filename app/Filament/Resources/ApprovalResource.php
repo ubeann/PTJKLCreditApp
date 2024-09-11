@@ -5,9 +5,10 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ApprovalResource\Pages;
 use App\Models\Approval;
 use App\Models\Application;
-use App\Models\User;
-use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -23,25 +24,32 @@ class ApprovalResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('application_id')
-                    ->label('Application')
-                    ->options(Application::all()->pluck('id', 'id'))
-                    ->required()
-                    ->searchable(),
-                Forms\Components\Select::make('approver_id')
-                    ->label('Approver')
-                    ->options(User::all()->pluck('name', 'id'))
-                    ->required()
-                    ->searchable(),
-                Forms\Components\Select::make('status')
-                    ->options([
-                        'pending' => 'Pending',
-                        'approved' => 'Approved',
-                        'rejected' => 'Rejected',
-                    ])
-                    ->required(),
-                Forms\Components\Textarea::make('remarks')
-                    ->nullable(),
+                Section::make('Application Details')
+                ->description('Select the application for this approval')
+                ->icon('heroicon-o-document-text')
+                ->schema([
+                    Select::make('application_id')
+                        ->label('Application')
+                        ->options(fn () => Application::whereDoesntHave('approvals')->pluck('consumer_name', 'id'))
+                        ->required()
+                        ->searchable(),
+                ]),
+
+                Section::make('Approval Information')
+                    ->description('Set the approval status and provide remarks')
+                    ->icon('heroicon-o-clipboard-document-check')
+                    ->schema([
+                        Select::make('status')
+                            ->native(false)
+                            ->options([
+                                'pending' => 'Pending',
+                                'approved' => 'Approved',
+                                'rejected' => 'Rejected',
+                            ])
+                            ->required(),
+                        Textarea::make('remarks')
+                            ->nullable(),
+                    ]),
             ]);
     }
 
@@ -51,6 +59,10 @@ class ApprovalResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('application_id')
                     ->label('Application ID')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('application.consumer_name')
+                    ->label('Consumer Name')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('approver.name')
@@ -65,9 +77,11 @@ class ApprovalResource extends Resource
                     ])
                     ->sortable(),
                 Tables\Columns\TextColumn::make('remarks')
-                    ->limit(50),
+                    ->limit(50)
+                    ->state(fn ($record) => $record->remarks ?? 'No remarks available')
+                    ->color(fn ($record) => $record->remarks ? null : 'gray'),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
+                    ->dateTime('d F Y H:i')
                     ->sortable(),
             ])
             ->filters([
@@ -80,19 +94,13 @@ class ApprovalResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Application extends Model
 {
@@ -47,4 +48,12 @@ class Application extends Model
         'down_payment' => 'decimal:2',
         'monthly_installment' => 'decimal:2'
     ];
+
+    /**
+     * Get the approval for the application.
+     */
+    public function approval(): HasOne
+    {
+        return $this->hasOne(Approval::class);
+    }
 }
