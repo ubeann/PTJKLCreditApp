@@ -203,60 +203,112 @@ class ApplicationResource extends Resource
             ]);
     }
 
-
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('consumer_name')
-                    ->searchable(),
+                    ->label('Name')
+                    ->searchable()
+                    ->sortable()
+                    ->limit(30),
                 Tables\Columns\TextColumn::make('nik')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('birthdate')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('marital_status')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('spouse_data')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('dealer')
-                    ->searchable(),
+                    ->label('NIK')
+                    ->searchable()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('vehicle_brand')
-                    ->searchable(),
+                    ->label('Brand')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('vehicle_model')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('vehicle_type')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('vehicle_color')
-                    ->searchable(),
+                    ->label('Model')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('vehicle_price')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('loan_insurance')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('down_payment')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('loan_term_months')
-                    ->numeric()
+                    ->label('Price')
+                    ->money('IDR')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('monthly_installment')
-                    ->numeric()
+                    ->label('Monthly Payment')
+                    ->money('IDR')
                     ->sortable(),
+                Tables\Columns\IconColumn::make('loan_insurance')
+                    ->boolean()
+                    ->label('Insured')
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger'),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Application Date')
+                    ->date('d F Y')
+                    ->sortable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('loan_status')
+                    ->native(false)
+                    ->options([
+                        'pending' => 'Pending',
+                        'approved' => 'Approved',
+                        'rejected' => 'Rejected',
+                    ]),
+                Tables\Filters\SelectFilter::make('vehicle_brand')
+                    ->searchable()
+                    ->multiple()
+                    ->options([
+                        'Toyota' => 'Toyota',
+                        'Honda' => 'Honda',
+                        'Suzuki' => 'Suzuki',
+                        'Mitsubishi' => 'Mitsubishi',
+                        'Daihatsu' => 'Daihatsu',
+                        'Isuzu' => 'Isuzu',
+                        'Nissan' => 'Nissan',
+                        'Mazda' => 'Mazda',
+                        'Mercedes-Benz' => 'Mercedes-Benz',
+                        'BMW' => 'BMW',
+                        'Audi' => 'Audi',
+                        'Volkswagen' => 'Volkswagen',
+                        'Ford' => 'Ford',
+                        'Chevrolet' => 'Chevrolet',
+                        'Jeep' => 'Jeep',
+                        'Land Rover' => 'Land Rover',
+                        'Porsche' => 'Porsche',
+                        'Lexus' => 'Lexus',
+                        'Subaru' => 'Subaru',
+                        'KIA' => 'KIA',
+                        'Hyundai' => 'Hyundai',
+                        'Peugeot' => 'Peugeot',
+                        'Volvo' => 'Volvo',
+                        'Jaguar' => 'Jaguar',
+                        'MINI' => 'MINI',
+                        'Ferrari' => 'Ferrari',
+                        'Bentley' => 'Bentley',
+                        'Rolls-Royce' => 'Rolls-Royce',
+                        'Lamborghini' => 'Lamborghini',
+                        'Maserati' => 'Maserati',
+                        'McLaren' => 'McLaren',
+                        'Aston Martin' => 'Aston Martin',
+                        'Alfa Romeo' => 'Alfa Romeo',
+                        'Lotus' => 'Lotus',
+                        'Bugatti' => 'Bugatti',
+                        'Pagani' => 'Pagani',
+                        'Koenigsegg' => 'Koenigsegg',
+                        'Ferrari' => 'Ferrari',
+                        'Tesla' => 'Tesla',
+                        'Polestar' => 'Polestar',
+                        'Lucid' => 'Lucid',
+                        'Rivian' => 'Rivian',
+                        'Byton' => 'Byton',
+                        'Rimac' => 'Rimac',
+                        'NIO' => 'NIO',
+                        'Xpeng' => 'Xpeng',
+                    ]),
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -265,19 +317,13 @@ class ApplicationResource extends Resource
             ]);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListApplications::route('/'),
             'create' => Pages\CreateApplication::route('/create'),
             'edit' => Pages\EditApplication::route('/{record}/edit'),
+            'view' => Pages\ViewApplication::route('/{record}'),
         ];
     }
 }
